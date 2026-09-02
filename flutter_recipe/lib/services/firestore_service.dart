@@ -18,8 +18,8 @@ class FirestoreService {
     return null;
   }
 
-  // Prepared methods for recipe operations (for future phases)
-  Stream<List<RecipeModel>> getRecipesStream() {
+  // Real-time Recipe Stream
+  Stream<List<RecipeModel>> watchRecipes() {
     return _firestore
         .collection('recipes')
         .orderBy('createdAt', descending: true)
@@ -29,7 +29,34 @@ class FirestoreService {
             .toList());
   }
 
-  Future<void> addRecipe(RecipeModel recipe) async {
-    await _firestore.collection('recipes').add(recipe.toMap());
+  // Fetch all recipes once
+  Future<List<RecipeModel>> getRecipes() async {
+    final snapshot = await _firestore
+        .collection('recipes')
+        .orderBy('createdAt', descending: true)
+        .get();
+    return snapshot.docs
+        .map((doc) => RecipeModel.fromMap(doc.data(), doc.id))
+        .toList();
+  }
+
+  // Fetch single recipe by ID
+  Future<RecipeModel?> getRecipeById(String recipeId) async {
+    final doc = await _firestore.collection('recipes').doc(recipeId).get();
+    if (doc.exists && doc.data() != null) {
+      return RecipeModel.fromMap(doc.data()!, doc.id);
+    }
+    return null;
+  }
+
+  // Fetch recipes by category
+  Future<List<RecipeModel>> getRecipesByCategory(String category) async {
+    final snapshot = await _firestore
+        .collection('recipes')
+        .where('category', isEqualTo: category)
+        .get();
+    return snapshot.docs
+        .map((doc) => RecipeModel.fromMap(doc.data(), doc.id))
+        .toList();
   }
 }

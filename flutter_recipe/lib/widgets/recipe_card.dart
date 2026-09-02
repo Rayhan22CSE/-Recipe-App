@@ -20,6 +20,8 @@ class RecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final titleText = recipe.name.isNotEmpty ? recipe.name : recipe.title;
+
     if (isCompact) {
       return Container(
         width: 220,
@@ -42,7 +44,15 @@ class RecipeCard extends StatelessWidget {
                       errorBuilder: (context, error, stackTrace) => Container(
                         height: 130,
                         color: Colors.grey.shade200,
-                        child: const Icon(Icons.restaurant, color: Colors.grey),
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.restaurant, color: Colors.grey, size: 36),
+                            SizedBox(height: 4),
+                            Text('No Image',
+                                style: TextStyle(color: Colors.grey, fontSize: 10)),
+                          ],
+                        ),
                       ),
                     ),
                     Positioned(
@@ -89,7 +99,7 @@ class RecipeCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        recipe.title,
+                        titleText,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -104,7 +114,7 @@ class RecipeCard extends StatelessWidget {
                               color: AppTheme.secondaryColor, size: 16),
                           const SizedBox(width: 4),
                           Text(
-                            recipe.rating.toString(),
+                            recipe.rating > 0 ? recipe.rating.toString() : 'New',
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -115,7 +125,7 @@ class RecipeCard extends StatelessWidget {
                               color: AppTheme.textSecondary, size: 14),
                           const SizedBox(width: 4),
                           Text(
-                            '${recipe.cookingTime} min',
+                            '${recipe.preparationTime} min',
                             style: const TextStyle(
                               fontSize: 12,
                               color: AppTheme.textSecondary,
@@ -146,12 +156,12 @@ class RecipeCard extends StatelessWidget {
                 children: [
                   Image.network(
                     recipe.imageUrl,
-                    height: 110,
-                    width: 110,
+                    height: 115,
+                    width: 115,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
-                      height: 110,
-                      width: 110,
+                      height: 115,
+                      width: 115,
                       color: Colors.grey.shade200,
                       child: const Icon(Icons.restaurant, color: Colors.grey),
                     ),
@@ -180,25 +190,43 @@ class RecipeCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withAlpha(30),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          recipe.category,
-                          style: const TextStyle(
-                            color: AppTheme.primaryColor,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryColor.withAlpha(30),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              recipe.category,
+                              style: const TextStyle(
+                                color: AppTheme.primaryColor,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                        ),
+                          const Spacer(),
+                          if (recipe.calories > 0)
+                            Row(
+                              children: [
+                                const Icon(Icons.local_fire_department_rounded,
+                                    size: 14, color: Colors.deepOrange),
+                                const SizedBox(width: 2),
+                                Text(
+                                  '${recipe.calories} kcal',
+                                  style: const TextStyle(
+                                      fontSize: 11, color: AppTheme.textSecondary),
+                                ),
+                              ],
+                            ),
+                        ],
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        recipe.title,
+                        titleText,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -223,7 +251,7 @@ class RecipeCard extends StatelessWidget {
                               color: AppTheme.secondaryColor, size: 16),
                           const SizedBox(width: 4),
                           Text(
-                            recipe.rating.toString(),
+                            recipe.rating > 0 ? recipe.rating.toString() : 'New',
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -234,7 +262,7 @@ class RecipeCard extends StatelessWidget {
                               color: AppTheme.textSecondary, size: 14),
                           const SizedBox(width: 4),
                           Text(
-                            '${recipe.cookingTime} min',
+                            '${recipe.preparationTime} min',
                             style: const TextStyle(
                               fontSize: 12,
                               color: AppTheme.textSecondary,
@@ -242,13 +270,11 @@ class RecipeCard extends StatelessWidget {
                           ),
                           const Spacer(),
                           Text(
-                            recipe.difficulty,
-                            style: TextStyle(
+                            '${recipe.servings} serv',
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: recipe.difficulty == 'Easy'
-                                  ? Colors.green
-                                  : Colors.orange,
+                              color: AppTheme.textSecondary,
                             ),
                           ),
                         ],

@@ -6,6 +6,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/recipe_provider.dart';
 import '../../utils/constants.dart';
 import '../../widgets/category_card.dart';
+import '../../widgets/empty_state.dart';
+import '../../widgets/loading_widget.dart';
 import '../../widgets/recipe_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -36,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            await recipeProvider.loadRecipes();
+            await recipeProvider.refreshRecipes();
           },
           color: AppTheme.primaryColor,
           child: SingleChildScrollView(
@@ -52,17 +54,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Hello, $userName 👋',
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.textPrimary,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            'Hello, $userName 👋',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           const Text(
@@ -115,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       recipeProvider.searchRecipes(val);
                     },
                     decoration: InputDecoration(
-                      hintText: 'Search recipes, ingredients...',
+                      hintText: 'Search by recipe title or ingredient...',
                       prefixIcon:
                           const Icon(Icons.search_rounded, color: Color(0xFF757575)),
                       suffixIcon: _searchController.text.isNotEmpty
@@ -181,7 +179,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 // Featured Recipe Hero Carousel (Only shown when not searching)
                 if (recipeProvider.searchQuery.isEmpty &&
-                    recipeProvider.selectedCategory == 'All') ...[
+                    recipeProvider.selectedCategory == 'All' &&
+                    recipeProvider.featuredRecipes.isNotEmpty) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -250,41 +249,49 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: AppTheme.textPrimary,
                       ),
                     ),
-                    Text(
-                      '${recipeProvider.recipes.length} found',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
+                    if (!recipeProvider.isLoading)
+                      Text(
+                        '${recipeProvider.recipes.length} found',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textSecondary,
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 14),
 
-                if (recipeProvider.recipes.isEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(32),
-                    alignment: Alignment.center,
-                    child: const Column(
-                      children: [
-                        Icon(Icons.search_off_rounded,
-                            size: 48, color: AppTheme.textSecondary),
-                        SizedBox(height: 12),
-                        Text(
-                          'No recipes found',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Try searching for another category or recipe title.',
-                          style: TextStyle(color: AppTheme.textSecondary),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
+                // Content View States: Loading, Error, Empty, or Recipes List
+                if (recipeProvider.isLoading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 40.0),
+                    child: LoadingWidget(message: 'Loading real-time recipes...'),
+                  )
+                else if (recipeProvider.errorMessage != null)
+                  EmptyState(
+                    title: 'Unable to Load Recipes',
+                    description: recipeProvider.errorMessage!,
+                    icon: Icons.cloud_off_rounded,
+                    buttonText: 'Retry',
+                    onButtonPressed: () {
+                      recipeProvider.refreshRecipes();
+                    },
+                  )
+                else if (recipeProvider.recipes.isEmpty)
+                  EmptyState(
+                    title: 'No Recipes Found',
+                    description: recipeProvider.searchQuery.isNotEmpty
+                        ? 'No recipes match "${recipeProvider.searchQuery}". Try searching for another dish or ingredient.'
+                        : 'No recipes found in ${recipeProvider.selectedCategory} category yet.',
+                    icon: Icons.search_off_rounded,
+                    buttonText: recipeProvider.searchQuery.isNotEmpty ||
+                            recipeProvider.selectedCategory != 'All'
+                        ? 'Clear Filters'
+                        : null,
+                    onButtonPressed: () {
+                      _searchController.clear();
+                      recipeProvider.clearFilters();
+                    },
                   )
                 else
                   ListView.builder(

@@ -1,0 +1,284 @@
+[
+  {
+    "name": "Butter Paneer",
+    "description": "Rich and creamy Indian cottage cheese curry cooked in a fragrant tomato butter gravy with aromatic spices.",
+    "imageUrl": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=600&q=80",
+    "category": "Lunch",
+    "calories": 450,
+    "preparationTime": 25,
+    "rating": 4.8,
+    "reviewCount": 24,
+    "servings": 2,
+    "ingredients": [
+      {
+        "name": "Paneer (Cottage Cheese)",
+        "amount": 250,
+        "unit": "g",
+        "imageUrl": null
+      },
+      {
+        "name": "Butter",
+        "amount": 40,
+        "unit": "g",
+        "imageUrl": null
+      },
+      {
+        "name": "Heavy Cream",
+        "amount": 0.5,
+        "unit": "cup",
+        "imageUrl": null
+      },
+      {
+        "name": "Tomato Puree",
+        "amount": 1,
+        "unit": "cup",
+        "imageUrl": null
+      },
+      {
+        "name": "Garam Masala",
+        "amount": 1,
+        "unit": "tsp",
+        "imageUrl": null
+      }
+    ],
+    "instructions": [
+      "Cut paneer into bite-sized cubes.",
+      "Melt butter in a pan and sauté tomato puree for 5-7 minutes.",
+      "Add heavy cream, garam masala, and salt to taste.",
+      "Simmer for 3 minutes, then add paneer cubes.",
+      "Garnish with fresh cream and coriander leaves before serving warm."
+    ],
+    "createdBy": "Chef Raj",
+    "createdAt": "2026-09-01T12:00:00Z"
+  },
+  {
+    "name": "Avocado Toast with Poached Egg",
+    "description": "Crispy sourdough bread topped with creamy mashed avocado, chili flakes, and a golden poached egg.",
+    "imageUrl": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80",
+    "category": "Breakfast",
+    "calories": 320,
+    "preparationTime": 15,
+    "rating": 4.7,
+    "reviewCount": 18,
+    "servings": 1,
+    "ingredients": [
+      {
+        "name": "Sourdough Bread",
+        "amount": 2,
+        "unit": "slices",
+        "imageUrl": null
+      },
+      {
+        "name": "Ripe Avocado",
+        "amount": 1,
+        "unit": "pc",
+        "imageUrl": null
+      },
+      {
+        "name": "Fresh Eggs",
+        "amount": 2,
+        "unit": "pcs",
+        "imageUrl": null
+      },
+      {
+        "name": "Lemon Juice",
+        "amount": 1,
+        "unit": "tbsp",
+        "imageUrl": null
+      },
+      {
+        "name": "Red Pepper Flakes",
+        "amount": 0.5,
+        "unit": "tsp",
+        "imageUrl": null
+      }
+    ],
+    "instructions": [
+      "Toast the sourdough bread slices until golden crisp.",
+      "Mash avocado with lemon juice, salt, and pepper in a small bowl.",
+      "Poach eggs in simmering water for 3 minutes.",
+      "Spread mashed avocado onto toast, top with poached egg and red pepper flakes."
+    ],
+    "createdBy": "Maria Chef",
+    "createdAt": "2026-09-01T10:00:00Z"
+  },
+  {
+    "name": "Grilled Salmon with Asparagus",
+    "description": "Tender, flaky salmon fillet grilled to perfection, served with lemon herb roasted asparagus.",
+    "imageUrl": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80",
+    "category": "Dinner",
+    "calories": 520,
+    "preparationTime": 25,
+    "rating": 4.9,
+    "reviewCount": 35,
+    "servings": 2,
+    "ingredients": [
+      {
+        "name": "Salmon Fillets",
+        "amount": 2,
+        "unit": "pcs",
+        "imageUrl": null
+      },
+      {
+        "name": "Fresh Asparagus",
+        "amount": 200,
+        "unit": "g",
+        "imageUrl": null
+      },
+      {
+        "name": "Olive Oil",
+        "amount": 2,
+        "unit": "tbsp",
+        "imageUrl": null
+      },
+      {
+        "name": "Lemon",
+        "amount": 1,
+        "unit": "pc",
+        "imageUrl": null
+      }
+    ],
+    "instructions": [
+      "Preheat grill to 200°C (400°F).",
+      "Season salmon fillets with olive oil, garlic, salt, and pepper.",
+      "Toss asparagus in olive oil and arrange around salmon.",
+      "Grill for 14-16 minutes until salmon flakes easily."
+    ],
+    "createdBy": "Chef Gordon",
+    "createdAt": "2026-09-01T14:00:00Z"
+  },
+  {
+    "name": "Berry Berry Pancakes",
+    "description": "Fluffy golden pancakes stacked high with fresh strawberries, blueberries, and maple syrup.",
+    "imageUrl": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80",
+    "category": "Breakfast",
+    "calories": 380,
+    "preparationTime": 20,
+    "rating": 4.6,
+    "reviewCount": 15,
+    "servings": 2,
+    "ingredients": [
+      {
+        "name": "Flour",
+        "amount": 1.5,
+        "unit": "cups",
+        "imageUrl": null
+      },
+      {
+        "name": "Milk",
+        "amount": 1,
+        "unit": "cup",
+        "imageUrl": null
+      },
+      {
+        "name": "Fresh Berries",
+        "amount": 100,
+        "unit": "g",
+        "imageUrl": null
+      },
+      {
+        "name": "Maple Syrup",
+        "amount": 3,
+        "unit": "tbsp",
+        "imageUrl": null
+      }
+    ],
+    "instructions": [
+      "Whisk flour, milk, egg, and baking powder into a smooth batter.",
+      "Cook ladlefuls on a warm buttered skillet until golden on both sides.",
+      "Serve stacked with fresh berries and warm maple syrup."
+    ],
+    "createdBy": "Baker Sarah",
+    "createdAt": "2026-09-01T08:00:00Z"
+  },
+  {
+    "name": "Classic Berry Tiramisu",
+    "description": "An elegant dessert featuring layers of espresso-soaked ladyfingers, velvety mascarpone cream, and cocoa.",
+    "imageUrl": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=600&q=80",
+    "category": "Dessert",
+    "calories": 310,
+    "preparationTime": 30,
+    "rating": 4.9,
+    "reviewCount": 42,
+    "servings": 4,
+    "ingredients": [
+      {
+        "name": "Ladyfinger Biscuits",
+        "amount": 200,
+        "unit": "g",
+        "imageUrl": null
+      },
+      {
+        "name": "Mascarpone Cheese",
+        "amount": 250,
+        "unit": "g",
+        "imageUrl": null
+      },
+      {
+        "name": "Espresso Coffee",
+        "amount": 1,
+        "unit": "cup",
+        "imageUrl": null
+      },
+      {
+        "name": "Cocoa Powder",
+        "amount": 2,
+        "unit": "tbsp",
+        "imageUrl": null
+      }
+    ],
+    "instructions": [
+      "Whip mascarpone cheese with cream and sugar until smooth.",
+      "Dip ladyfingers briefly into espresso and layer in a dish.",
+      "Spread mascarpone cream over ladyfingers.",
+      "Repeat layers and dust top generously with cocoa powder before chilling."
+    ],
+    "createdBy": "Chef Marco",
+    "createdAt": "2026-09-01T16:00:00Z"
+  },
+  {
+    "name": "Chicken Tikka Masala",
+    "description": "Marinated grilled chicken pieces cooked in a spiced, flavorful tomato and cream sauce.",
+    "imageUrl": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&q=80",
+    "category": "Dinner",
+    "calories": 540,
+    "preparationTime": 35,
+    "rating": 4.8,
+    "reviewCount": 29,
+    "servings": 3,
+    "ingredients": [
+      {
+        "name": "Chicken Breast",
+        "amount": 500,
+        "unit": "g",
+        "imageUrl": null
+      },
+      {
+        "name": "Yogurt",
+        "amount": 0.5,
+        "unit": "cup",
+        "imageUrl": null
+      },
+      {
+        "name": "Tomato Gravy",
+        "amount": 1.5,
+        "unit": "cups",
+        "imageUrl": null
+      },
+      {
+        "name": "Tikka Spices",
+        "amount": 2,
+        "unit": "tbsp",
+        "imageUrl": null
+      }
+    ],
+    "instructions": [
+      "Marinate chicken in yogurt and spices for 30 minutes.",
+      "Grill chicken until charred and cooked through.",
+      "Simmer in tomato cream gravy for 10 minutes.",
+      "Serve hot with basmati rice or naan bread."
+    ],
+    "createdBy": "Chef Raj",
+    "createdAt": "2026-09-01T18:00:00Z"
+  }
+]

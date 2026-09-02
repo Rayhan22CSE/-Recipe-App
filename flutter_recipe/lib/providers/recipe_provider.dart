@@ -1,25 +1,29 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/recipe_model.dart';
 import '../repositories/recipe_repository.dart';
 
 class RecipeProvider extends ChangeNotifier {
   final RecipeRepository _recipeRepository;
+  StreamSubscription<List<RecipeModel>>? _recipesSubscription;
 
   List<RecipeModel> _allRecipes = [];
   List<RecipeModel> _filteredRecipes = [];
   final Set<String> _favoriteIds = {};
-  
-  bool _isLoading = false;
+  final Map<String, int> _servingsMap = {};
+
+  bool _isLoading = true;
   String? _errorMessage;
   String _selectedCategory = 'All';
   String _searchQuery = '';
 
   RecipeProvider({RecipeRepository? recipeRepository})
       : _recipeRepository = recipeRepository ?? RecipeRepository() {
-    loadRecipes();
+    _init();
   }
 
   List<RecipeModel> get recipes => _filteredRecipes;
+  List<RecipeModel> get allRecipes => _allRecipes;
   List<RecipeModel> get featuredRecipes => _allRecipes.take(2).toList();
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -27,20 +31,34 @@ class RecipeProvider extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   Set<String> get favoriteIds => _favoriteIds;
 
-  Future<void> loadRecipes() async {
+  void _init() {
+    _listenToRecipes();
+  }
+
+  void _listenToRecipes() {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
-    try {
-      _allRecipes = await _recipeRepository.getMockRecipes();
-      _applyFilters();
-      _isLoading = false;
-    } catch (e) {
-      _errorMessage = 'Failed to load recipes.';
-      _isLoading = false;
-    }
-    notifyListeners();
+    _recipesSubscription?.cancel();
+    _recipesSubscription = _recipeRepository.watchRecipes().listen(
+      (recipesData) {
+        _allRecipes = recipesData;
+        _applyFilters();
+        _isLoading = false;
+        _errorMessage = null;
+        notifyListeners();
+      },
+      onError: (error) {
+        _isLoading = false;
+        _errorMessage = 'Unable to load recipes from database.';
+        notifyListeners();
+      },
+    );
+  }
+
+  Future<void> refreshRecipes() async {
+    _listenToRecipes();
   }
 
   void selectCategory(String category) {
@@ -51,6 +69,13 @@ class RecipeProvider extends ChangeNotifier {
 
   void searchRecipes(String query) {
     _searchQuery = query;
+    _applyFilters();
+    notifyListeners();
+  }
+
+  void clearFilters() {
+    _selectedCategory = 'All';
+    _searchQuery = '';
     _applyFilters();
     notifyListeners();
   }
@@ -68,18 +93,48 @@ class RecipeProvider extends ChangeNotifier {
     return _favoriteIds.contains(recipeId);
   }
 
+  // Servings Scaling Logic for Recipe Details
+  int getServings(String recipeId, int baseServings) {
+    return _servingsMap[recipeId] ?? (baseServings > 0 ? baseServings : 1);
+  }
+
+  void incrementServings(String recipeId, int baseServings) {
+    final current = getServings(recipeId, baseServings);
+    _servingsMap[recipeId] = current + 1;
+    notifyListeners();
+  }
+
+  void decrementServings(String recipeId, int baseServings) {
+    final current = getServings(recipeId, baseServings);
+    if (current > 1) {
+      _servingsMap[recipeId] = current - 1;
+      notifyListeners();
+    }
+  }
+
   void _applyFilters() {
     _filteredRecipes = _allRecipes.where((recipe) {
       final matchesCategory = _selectedCategory == 'All' ||
           recipe.category.toLowerCase() == _selectedCategory.toLowerCase();
 
-      final matchesQuery = _searchQuery.isEmpty ||
-          recipe.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          recipe.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          recipe.ingredients.any(
-              (ing) => ing.toLowerCase().contains(_searchQuery.toLowerCase()));
+      final queryLower = _searchQuery.trim().toLowerCase();
+      final matchesTitle = recipe.title.toLowerCase().contains(queryLower) ||
+          recipe.name.toLowerCase().contains(queryLower) ||
+          recipe.description.toLowerCase().contains(queryLower);
+
+      final matchesIngredient = recipe.ingredients.any(
+        (ing) => ing.name.toLowerCase().contains(queryLower),
+      );
+
+      final matchesQuery = queryLower.isEmpty || matchesTitle || matchesIngredient;
 
       return matchesCategory && matchesQuery;
     }).toList();
+  }
+
+  @override
+  void dispose() {
+    _recipesSubscription?.cancel();
+    super.dispose();
   }
 }

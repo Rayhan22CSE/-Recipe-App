@@ -1,5 +1,4 @@
 import '../models/recipe_model.dart';
-import '../utils/constants.dart';
 import '../services/firestore_service.dart';
 
 class RecipeRepository {
@@ -8,13 +7,19 @@ class RecipeRepository {
   RecipeRepository({FirestoreService? firestoreService})
       : _firestoreService = firestoreService ?? FirestoreService();
 
-  Future<List<RecipeModel>> getMockRecipes() async {
-    // Simulate minor network delay
-    await Future.delayed(const Duration(milliseconds: 300));
-    return AppConstants.mockRecipes;
+  Stream<List<RecipeModel>> watchRecipes() {
+    return _firestoreService.watchRecipes();
   }
 
-  Stream<List<RecipeModel>> getFirestoreRecipes() {
-    return _firestoreService.getRecipesStream();
+  Future<List<RecipeModel>> getRecipes() async {
+    return await _firestoreService.getRecipes();
+  }
+
+  Future<RecipeModel?> getRecipeById(String recipeId) async {
+    return await _firestoreService.getRecipeById(recipeId);
+  }
+
+  Future<List<RecipeModel>> getRecipesByCategory(String category) async {
+    return await _firestoreService.getRecipesByCategory(category);
   }
 }
