@@ -129,6 +129,8 @@ class AuthProvider extends ChangeNotifier {
         return 'Password is too weak. Choose a stronger password.';
       case 'invalid-credential':
         return 'Invalid email or password.';
+      case 'network-request-failed':
+        return 'Network error. Please check your internet connection.';
       default:
         return 'Authentication failed ($code).';
     }
