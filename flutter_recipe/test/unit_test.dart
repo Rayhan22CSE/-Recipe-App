@@ -1,8 +1,29 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_recipe/models/ingredient_model.dart';
 import 'package:flutter_recipe/models/recipe_model.dart';
+import 'package:flutter_recipe/models/user_model.dart';
 
 void main() {
+  group('UserModel Tests', () {
+    test('fromMap and toMap serialize correctly', () {
+      final map = {
+        'name': 'Tamanna',
+        'email': 'tamanna@gmail.com',
+        'photoUrl': null,
+        'createdAt': '2026-09-03T12:00:00Z',
+      };
+
+      final user = UserModel.fromMap(map, 'user_123');
+      expect(user.id, 'user_123');
+      expect(user.name, 'Tamanna');
+      expect(user.email, 'tamanna@gmail.com');
+
+      final serialized = user.toMap();
+      expect(serialized['name'], 'Tamanna');
+      expect(serialized['email'], 'tamanna@gmail.com');
+    });
+  });
+
   group('IngredientModel Tests', () {
     test('fromMap and toMap serialize correctly', () {
       final map = {

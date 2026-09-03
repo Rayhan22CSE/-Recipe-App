@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
@@ -19,14 +20,27 @@ class AuthRepository {
   Future<UserModel?> login(String email, String password) async {
     final credential = await _authService.login(email: email, password: password);
     if (credential.user != null) {
-      return await _firestoreService.getUserProfile(credential.user!.uid) ??
-          UserModel(
-            id: credential.user!.uid,
-            name: credential.user!.displayName ?? email.split('@').first,
-            email: email,
-            photoUrl: credential.user!.photoURL,
-            createdAt: DateTime.now(),
-          );
+      final uid = credential.user!.uid;
+      UserModel? profile = await _firestoreService.getUserProfile(uid);
+
+      // Self-healing: If Firestore profile document is missing (e.g. from prior partial registration), create it now
+      if (profile == null) {
+        debugPrint('User profile missing in Firestore for $uid. Auto-creating profile...');
+        profile = UserModel(
+          id: uid,
+          name: credential.user!.displayName ?? email.split('@').first,
+          email: email,
+          photoUrl: credential.user!.photoURL,
+          createdAt: DateTime.now(),
+        );
+        try {
+          await _firestoreService.createUserProfile(profile);
+        } catch (e) {
+          debugPrint('Warning: Could not auto-create missing user profile on login: $e');
+        }
+      }
+
+      return profile;
     }
     return null;
   }
@@ -46,8 +60,16 @@ class AuthRepository {
         photoUrl: null,
         createdAt: DateTime.now(),
       );
-      await _firestoreService.createUserProfile(user);
-      return user;
+
+      try {
+        await _firestoreService.createUserProfile(user);
+        return user;
+      } catch (e) {
+        debugPrint('Error creating Firestore user profile during registration: $e');
+        // Clean up Auth state on profile creation failure to prevent partial state
+        await _authService.logout();
+        rethrow;
+      }
     }
     return null;
   }

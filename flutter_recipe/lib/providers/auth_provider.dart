@@ -79,11 +79,13 @@ class AuthProvider extends ChangeNotifier {
       _currentUser = user;
       _setLoading(false);
       return true;
-    } on FirebaseAuthException catch (e) {
-      _setError(_getReadableAuthError(e.code));
+    } on FirebaseException catch (e) {
+      debugPrint('Registration FirebaseException: [${e.plugin}/${e.code}] ${e.message}');
+      _setError(_getReadableAuthError(e.code, e.message));
       _setLoading(false);
       return false;
     } catch (e) {
+      debugPrint('Registration unexpected error: $e');
       _setError('An unexpected error occurred during registration.');
       _setLoading(false);
       return false;
@@ -115,7 +117,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  String _getReadableAuthError(String code) {
+  String _getReadableAuthError(String code, [String? rawMessage]) {
     switch (code) {
       case 'user-not-found':
         return 'No user account found with this email.';
@@ -130,8 +132,14 @@ class AuthProvider extends ChangeNotifier {
       case 'invalid-credential':
         return 'Invalid email or password.';
       case 'network-request-failed':
+      case 'unavailable':
         return 'Network error. Please check your internet connection.';
+      case 'permission-denied':
+        return 'Firestore permission denied. Please verify security rules for users collection.';
       default:
+        if (rawMessage != null && rawMessage.trim().isNotEmpty) {
+          return rawMessage;
+        }
         return 'Authentication failed ($code).';
     }
   }
