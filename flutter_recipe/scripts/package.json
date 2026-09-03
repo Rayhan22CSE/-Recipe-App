@@ -1,0 +1,13 @@
+{
+  "name": "recipe-app-seeder",
+  "version": "1.0.0",
+  "description": "One-time admin Cloud Firestore recipe database seeder",
+  "main": "seed_firestore.js",
+  "scripts": {
+    "seed": "node seed_firestore.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "google-auth-library": "^9.0.0"
+  }
+}
