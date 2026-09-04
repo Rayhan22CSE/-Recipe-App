@@ -6,6 +6,7 @@ class UserModel {
   final String email;
   final String? photoUrl;
   final DateTime createdAt;
+  final List<String> favoriteIds;
 
   UserModel({
     required this.id,
@@ -13,6 +14,7 @@ class UserModel {
     required this.email,
     this.photoUrl,
     required this.createdAt,
+    this.favoriteIds = const [],
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map, String documentId) {
@@ -25,12 +27,19 @@ class UserModel {
       return DateTime.now();
     }
 
+    final rawFavs = map['favoriteIds'] ?? map['favorites'];
+    List<String> parsedFavs = [];
+    if (rawFavs is List) {
+      parsedFavs = rawFavs.map((e) => e.toString()).toList();
+    }
+
     return UserModel(
       id: documentId,
       name: map['name'] as String? ?? '',
       email: map['email'] as String? ?? '',
       photoUrl: map['photoUrl'] as String?,
       createdAt: parseDate(map['createdAt']),
+      favoriteIds: parsedFavs,
     );
   }
 
@@ -40,6 +49,25 @@ class UserModel {
       'email': email,
       'photoUrl': photoUrl,
       'createdAt': Timestamp.fromDate(createdAt),
+      'favoriteIds': favoriteIds,
     };
+  }
+
+  UserModel copyWith({
+    String? id,
+    String? name,
+    String? email,
+    String? photoUrl,
+    DateTime? createdAt,
+    List<String>? favoriteIds,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      photoUrl: photoUrl ?? this.photoUrl,
+      createdAt: createdAt ?? this.createdAt,
+      favoriteIds: favoriteIds ?? this.favoriteIds,
+    );
   }
 }

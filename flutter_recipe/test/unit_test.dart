@@ -14,16 +14,19 @@ void main() {
         'email': 'tamanna@gmail.com',
         'photoUrl': null,
         'createdAt': '2026-09-03T12:00:00Z',
+        'favoriteIds': ['rec_1', 'rec_2'],
       };
 
       final user = UserModel.fromMap(map, 'user_123');
       expect(user.id, 'user_123');
       expect(user.name, 'Tamanna');
       expect(user.email, 'tamanna@gmail.com');
+      expect(user.favoriteIds, ['rec_1', 'rec_2']);
 
       final serialized = user.toMap();
       expect(serialized['name'], 'Tamanna');
       expect(serialized['email'], 'tamanna@gmail.com');
+      expect(serialized['favoriteIds'], ['rec_1', 'rec_2']);
     });
   });
 
@@ -371,12 +374,32 @@ void main() {
       final success = await provider.submitReview(review);
       expect(success, true);
     });
+
+    test('RecipeProvider favorite toggling, syncing, and clearing work correctly', () {
+      final repo = MockRecipeRepository([]);
+      final provider = RecipeProvider(recipeRepository: repo);
+
+      expect(provider.isFavorite('rec_1'), false);
+      provider.toggleFavorite('rec_1', userId: 'user_1');
+      expect(provider.isFavorite('rec_1'), true);
+
+      provider.toggleFavorite('rec_1', userId: 'user_1');
+      expect(provider.isFavorite('rec_1'), false);
+
+      provider.syncUserFavorites(['rec_10', 'rec_20']);
+      expect(provider.isFavorite('rec_10'), true);
+      expect(provider.isFavorite('rec_20'), true);
+
+      provider.clearAllFavorites(userId: 'user_1');
+      expect(provider.isFavorite('rec_10'), false);
+    });
   });
 }
 
 class MockRecipeRepository extends RecipeRepository {
   final List<RecipeModel> mockRecipes;
   final List<ReviewModel> mockReviews = [];
+  final Set<String> mockUserFavorites = {};
 
   MockRecipeRepository(this.mockRecipes);
 
@@ -418,5 +441,20 @@ class MockRecipeRepository extends RecipeRepository {
     } else {
       mockReviews.add(review);
     }
+  }
+
+  @override
+  Future<void> addFavoriteToUser(String uid, String recipeId) async {
+    mockUserFavorites.add(recipeId);
+  }
+
+  @override
+  Future<void> removeFavoriteFromUser(String uid, String recipeId) async {
+    mockUserFavorites.remove(recipeId);
+  }
+
+  @override
+  Future<void> clearUserFavorites(String uid) async {
+    mockUserFavorites.clear();
   }
 }

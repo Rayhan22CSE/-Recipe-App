@@ -43,4 +43,16 @@ class RecipeRepository {
   Future<void> addOrUpdateReview(ReviewModel review) async {
     await _firestoreService.addOrUpdateReview(review);
   }
+
+  Future<void> addFavoriteToUser(String uid, String recipeId) async {
+    await _firestoreService.addFavoriteToUser(uid, recipeId);
+  }
+
+  Future<void> removeFavoriteFromUser(String uid, String recipeId) async {
+    await _firestoreService.removeFavoriteFromUser(uid, recipeId);
+  }
+
+  Future<void> clearUserFavorites(String uid) async {
+    await _firestoreService.clearUserFavorites(uid);
+  }
 }

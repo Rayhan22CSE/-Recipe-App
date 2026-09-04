@@ -86,11 +86,32 @@ class RecipeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleFavorite(String recipeId) {
-    if (_favoriteIds.contains(recipeId)) {
+  void syncUserFavorites(List<String> userFavoriteIds) {
+    _favoriteIds.clear();
+    _favoriteIds.addAll(userFavoriteIds);
+    notifyListeners();
+  }
+
+  void toggleFavorite(String recipeId, {String? userId}) {
+    final isFav = _favoriteIds.contains(recipeId);
+    if (isFav) {
       _favoriteIds.remove(recipeId);
+      if (userId != null && userId.isNotEmpty) {
+        _recipeRepository.removeFavoriteFromUser(userId, recipeId);
+      }
     } else {
       _favoriteIds.add(recipeId);
+      if (userId != null && userId.isNotEmpty) {
+        _recipeRepository.addFavoriteToUser(userId, recipeId);
+      }
+    }
+    notifyListeners();
+  }
+
+  Future<void> clearAllFavorites({String? userId}) async {
+    _favoriteIds.clear();
+    if (userId != null && userId.isNotEmpty) {
+      await _recipeRepository.clearUserFavorites(userId);
     }
     notifyListeners();
   }

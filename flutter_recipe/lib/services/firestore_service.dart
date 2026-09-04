@@ -41,6 +41,36 @@ class FirestoreService {
     }
   }
 
+  Future<void> addFavoriteToUser(String uid, String recipeId) async {
+    try {
+      await _firestore.collection('users').doc(uid).set({
+        'favoriteIds': FieldValue.arrayUnion([recipeId]),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('[FirestoreService] addFavoriteToUser error: $e');
+    }
+  }
+
+  Future<void> removeFavoriteFromUser(String uid, String recipeId) async {
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'favoriteIds': FieldValue.arrayRemove([recipeId]),
+      });
+    } catch (e) {
+      debugPrint('[FirestoreService] removeFavoriteFromUser error: $e');
+    }
+  }
+
+  Future<void> clearUserFavorites(String uid) async {
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'favoriteIds': [],
+      });
+    } catch (e) {
+      debugPrint('[FirestoreService] clearUserFavorites error: $e');
+    }
+  }
+
   // Real-time Recipe Stream
   Stream<List<RecipeModel>> watchRecipes() {
     return _firestore
