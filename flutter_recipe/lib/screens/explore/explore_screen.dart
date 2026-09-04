@@ -9,14 +9,14 @@ import '../../widgets/empty_state.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/recipe_card.dart';
 
-class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+class ExploreScreen extends StatefulWidget {
+  const ExploreScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  State<ExploreScreen> createState() => _ExploreScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _ExploreScreenState extends State<ExploreScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -29,12 +29,17 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     final recipeProvider = Provider.of<RecipeProvider>(context);
     final displayRecipes = recipeProvider.recipes;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final crossAxisCount = screenWidth >= 1100
+        ? 4
+        : (screenWidth >= 650 ? 3 : 2);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: const Text(
-          'All Recipes & Search',
+          'Explore Recipes',
           style: TextStyle(
             color: Color(0xFF1E1E24),
             fontWeight: FontWeight.bold,
@@ -49,7 +54,7 @@ class _SearchScreenState extends State<SearchScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.clear_all_rounded, color: AppTheme.primaryColor),
-            tooltip: 'Clear Filters',
+            tooltip: 'Reset Filters',
             onPressed: () {
               _searchController.clear();
               recipeProvider.clearFilters();
@@ -69,7 +74,7 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Search Bar Input
+                // Search Input
                 Container(
                   height: 50,
                   decoration: BoxDecoration(
@@ -89,13 +94,13 @@ class _SearchScreenState extends State<SearchScreen> {
                       recipeProvider.searchRecipes(val);
                     },
                     decoration: InputDecoration(
-                      hintText: 'Search recipes by name or ingredient...',
+                      hintText: 'Explore by dish name or ingredient...',
                       hintStyle: const TextStyle(
                         color: Color(0xFF9EA6B5),
                         fontSize: 14,
                       ),
-                      prefixIcon: const Icon(Icons.search_rounded,
-                          color: Color(0xFF9EA6B5), size: 22),
+                      prefixIcon: const Icon(Icons.explore_outlined,
+                          color: AppTheme.primaryColor, size: 22),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.cancel_rounded,
@@ -138,24 +143,43 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Recipe Counter Header
-                Text(
-                  'Showing ${displayRecipes.length} recipes',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E1E24),
-                  ),
+                // Header Counter
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Found ${displayRecipes.length} recipes',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E1E24),
+                      ),
+                    ),
+                    if (recipeProvider.selectedCategory != 'All' ||
+                        recipeProvider.searchQuery.isNotEmpty)
+                      Chip(
+                        label: Text(
+                          recipeProvider.selectedCategory != 'All'
+                              ? recipeProvider.selectedCategory
+                              : recipeProvider.searchQuery,
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.white),
+                        ),
+                        backgroundColor: AppTheme.primaryColor,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 14),
 
-                // Grid View of Filtered Recipes
+                // Responsive Compact 2-Column Grid
                 if (recipeProvider.isLoading)
-                  const LoadingWidget(message: 'Loading recipes...')
+                  const LoadingWidget(message: 'Exploring recipes...')
                 else if (displayRecipes.isEmpty)
                   const EmptyState(
-                    title: 'No Recipes Found',
-                    description: 'Try searching for something else or clearing filters.',
+                    title: 'No Matching Recipes',
+                    description:
+                        'No delicious recipes found. Try clearing your search.',
                     icon: Icons.search_off_rounded,
                   )
                 else
@@ -163,9 +187,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: MediaQuery.of(context).size.width >= 1100
-                          ? 4
-                          : (MediaQuery.of(context).size.width >= 650 ? 3 : 2),
+                      crossAxisCount: crossAxisCount,
                       childAspectRatio: 1.08,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,

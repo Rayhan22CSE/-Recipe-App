@@ -7,6 +7,7 @@ class RecipeCard extends StatelessWidget {
   final VoidCallback onTap;
   final bool isFavorite;
   final VoidCallback onFavoriteToggle;
+  final double? width;
 
   const RecipeCard({
     super.key,
@@ -14,6 +15,7 @@ class RecipeCard extends StatelessWidget {
     required this.onTap,
     required this.isFavorite,
     required this.onFavoriteToggle,
+    this.width,
   });
 
   @override
@@ -21,117 +23,147 @@ class RecipeCard extends StatelessWidget {
     final titleText = recipe.name.isNotEmpty ? recipe.name : recipe.title;
 
     return Container(
+      width: width,
       decoration: BoxDecoration(
-        color: Colors.transparent,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(10),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Recipe Header Image with Heart Icon Overlay
+            // Compact Header Image Stack
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                   child: Image.network(
                     recipe.imageUrl,
-                    height: 140,
+                    height: 95,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
-                      height: 140,
+                      height: 95,
                       width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.restaurant, color: Colors.grey, size: 36),
-                          SizedBox(height: 4),
-                          Text('No Image',
-                              style: TextStyle(color: Colors.grey, fontSize: 10)),
-                        ],
+                      color: Colors.grey.shade200,
+                      child: const Icon(
+                        Icons.restaurant_rounded,
+                        color: Colors.grey,
+                        size: 26,
                       ),
                     ),
                   ),
                 ),
+
+                // Category Tag Top-Left
                 Positioned(
-                  top: 8,
-                  right: 8,
+                  top: 6,
+                  left: 6,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(130),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      recipe.category,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Heart Icon Overlay Top-Right
+                Positioned(
+                  top: 6,
+                  right: 6,
                   child: GestureDetector(
                     onTap: onFavoriteToggle,
                     child: Container(
-                      padding: const EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         isFavorite ? Icons.favorite : Icons.favorite_border_rounded,
-                        color: isFavorite ? Colors.red : Colors.grey.shade700,
-                        size: 18,
+                        color: isFavorite ? Colors.red : const Color(0xFF1E1E24),
+                        size: 14,
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
 
-            // Recipe Title
-            Text(
-              titleText,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
+            // Card Body Info
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title (Max 2 lines)
+                  SizedBox(
+                    height: 30,
+                    child: Text(
+                      titleText,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        height: 1.15,
+                        color: Color(0xFF1E1E24),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Rating & Prep Time Row
+                  Row(
+                    children: [
+                      const Icon(Icons.star_rounded,
+                          color: AppTheme.secondaryColor, size: 13),
+                      const SizedBox(width: 2),
+                      Text(
+                        recipe.reviewCount > 0
+                            ? '${recipe.rating.toStringAsFixed(1)} (${recipe.reviewCount})'
+                            : 'New',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E1E24),
+                        ),
+                      ),
+                      const Spacer(),
+                      const Icon(Icons.access_time_rounded,
+                          size: 11, color: Color(0xFF8A94A6)),
+                      const SizedBox(width: 2),
+                      Text(
+                        '${recipe.preparationTime}m',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF8A94A6),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 4),
-
-            // Recipe Stats Row (⚡ Cal · 🕒 Min)
-            Row(
-              children: [
-                const Icon(Icons.flash_on_rounded,
-                    size: 14, color: Color(0xFF8A94A6)),
-                const SizedBox(width: 2),
-                Text(
-                  '${recipe.calories} Cal',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF8A94A6),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Text(
-                  '·',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF8A94A6),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Icon(Icons.access_time_rounded,
-                    size: 14, color: Color(0xFF8A94A6)),
-                const SizedBox(width: 2),
-                Text(
-                  '${recipe.preparationTime} Min',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF8A94A6),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
             ),
           ],
         ),

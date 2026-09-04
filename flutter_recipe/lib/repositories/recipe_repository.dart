@@ -1,4 +1,5 @@
 import '../models/recipe_model.dart';
+import '../models/review_model.dart';
 import '../services/firestore_service.dart';
 
 class RecipeRepository {
@@ -21,5 +22,25 @@ class RecipeRepository {
 
   Future<List<RecipeModel>> getRecipesByCategory(String category) async {
     return await _firestoreService.getRecipesByCategory(category);
+  }
+
+  Future<String> createRecipe(RecipeModel recipe) async {
+    return await _firestoreService.createRecipe(recipe);
+  }
+
+  Future<void> updateRecipe(RecipeModel recipe) async {
+    await _firestoreService.updateRecipe(recipe);
+  }
+
+  Future<void> deleteRecipe(String recipeId) async {
+    await _firestoreService.deleteRecipe(recipeId);
+  }
+
+  Stream<List<ReviewModel>> watchReviewsForRecipe(String recipeId) {
+    return _firestoreService.watchReviewsForRecipe(recipeId);
+  }
+
+  Future<void> addOrUpdateReview(ReviewModel review) async {
+    await _firestoreService.addOrUpdateReview(review);
   }
 }

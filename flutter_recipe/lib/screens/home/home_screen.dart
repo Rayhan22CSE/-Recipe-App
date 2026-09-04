@@ -30,15 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final recipeProvider = Provider.of<RecipeProvider>(context);
 
-    // Filter recipes for Home Screen: ONLY display reference recipes (Mexican Pizza & French Toast) on 'All' category view
-    final displayRecipes = (recipeProvider.selectedCategory == 'All' &&
-            recipeProvider.searchQuery.isEmpty)
-        ? recipeProvider.recipes.where((r) {
-            final title = (r.name.isNotEmpty ? r.name : r.title).toLowerCase();
-            return title.contains('mexican pizza') ||
-                title.contains('french toast');
-          }).toList()
-        : recipeProvider.recipes;
+    final displayRecipes = recipeProvider.recipes;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -160,19 +152,24 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 22, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                'Explore',
-                                style: TextStyle(
-                                  color: Color(0xFF1E1E24),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(context, AppRoutes.explore);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 22, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  'Explore',
+                                  style: TextStyle(
+                                    color: Color(0xFF1E1E24),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
@@ -252,7 +249,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, AppRoutes.search);
+                      },
                       child: const Text(
                         'View all',
                         style: TextStyle(
@@ -266,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // 6. Recipe Grid (2 Columns)
+                // 6. Single-Row Horizontal Recipe Carousel
                 if (recipeProvider.isLoading)
                   const LoadingWidget(message: 'Loading recipes...')
                 else if (displayRecipes.isEmpty)
@@ -276,41 +275,51 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Icons.search_off_rounded,
                   )
                 else
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.82,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
-                    itemCount: displayRecipes.length,
-                    itemBuilder: (context, index) {
-                      final recipe = displayRecipes[index];
-                      final isFav = recipeProvider.isFavorite(recipe.id);
+                  SizedBox(
+                    height: 175,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: displayRecipes.length,
+                      itemBuilder: (context, index) {
+                        final recipe = displayRecipes[index];
+                        final isFav = recipeProvider.isFavorite(recipe.id);
 
-                      return RecipeCard(
-                        recipe: recipe,
-                        isFavorite: isFav,
-                        onFavoriteToggle: () {
-                          recipeProvider.toggleFavorite(recipe.id);
-                        },
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            AppRoutes.recipeDetails,
-                            arguments: recipe,
-                          );
-                        },
-                      );
-                    },
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 14.0),
+                          child: RecipeCard(
+                            recipe: recipe,
+                            width: 150,
+                            isFavorite: isFav,
+                            onFavoriteToggle: () {
+                              recipeProvider.toggleFavorite(recipe.id);
+                            },
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.recipeDetails,
+                                arguments: recipe,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   ),
               ],
             ),
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, AppRoutes.addEditRecipe);
+        },
+        backgroundColor: AppTheme.primaryColor,
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),

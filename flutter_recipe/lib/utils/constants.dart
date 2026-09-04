@@ -13,7 +13,7 @@ class AppConstants {
     {'name': 'Breakfast', 'icon': 'free_breakfast'},
   ];
 
-  // Reference recipes dataset matching reference screenshots
+  // Reference recipes dataset
   static final List<RecipeModel> testFallbackRecipes = [
     RecipeModel(
       id: 'ref_1',
@@ -26,8 +26,8 @@ class AppConstants {
       calories: 140,
       preparationTime: 25,
       servings: 2,
-      rating: 4.9,
-      reviewCount: 38,
+      rating: 0.0,
+      reviewCount: 0,
       ingredients: [
         IngredientModel(name: 'Tortilla Shells', amount: 2, unit: 'pcs'),
         IngredientModel(name: 'Refried Beans', amount: 150, unit: 'gm'),
@@ -55,8 +55,8 @@ class AppConstants {
       calories: 110,
       preparationTime: 15,
       servings: 1,
-      rating: 4.8,
-      reviewCount: 29,
+      rating: 0.0,
+      reviewCount: 0,
       ingredients: [
         IngredientModel(name: 'Brioche Bread', amount: 2, unit: 'slices'),
         IngredientModel(name: 'Fresh Eggs', amount: 2, unit: 'pcs'),
@@ -83,8 +83,8 @@ class AppConstants {
       calories: 120,
       preparationTime: 15,
       servings: 1,
-      rating: 5.0,
-      reviewCount: 23,
+      rating: 0.0,
+      reviewCount: 0,
       ingredients: [
         IngredientModel(
           name: 'Noodles',

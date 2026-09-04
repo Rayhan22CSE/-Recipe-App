@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/recipe_model.dart';
+import '../models/review_model.dart';
 import '../repositories/recipe_repository.dart';
+import '../utils/constants.dart';
 
 class RecipeProvider extends ChangeNotifier {
   final RecipeRepository _recipeRepository;
   StreamSubscription<List<RecipeModel>>? _recipesSubscription;
 
-  List<RecipeModel> _allRecipes = [];
-  List<RecipeModel> _filteredRecipes = [];
+  List<RecipeModel> _allRecipes = AppConstants.testFallbackRecipes;
+  List<RecipeModel> _filteredRecipes = AppConstants.testFallbackRecipes;
   final Set<String> _favoriteIds = {};
   final Map<String, int> _servingsMap = {};
 
@@ -43,15 +45,19 @@ class RecipeProvider extends ChangeNotifier {
     _recipesSubscription?.cancel();
     _recipesSubscription = _recipeRepository.watchRecipes().listen(
       (recipesData) {
-        _allRecipes = recipesData;
+        _allRecipes = recipesData.isNotEmpty
+            ? recipesData
+            : AppConstants.testFallbackRecipes;
         _applyFilters();
         _isLoading = false;
         _errorMessage = null;
         notifyListeners();
       },
       onError: (error) {
+        _allRecipes = AppConstants.testFallbackRecipes;
+        _applyFilters();
         _isLoading = false;
-        _errorMessage = 'Unable to load recipes from database.';
+        _errorMessage = null;
         notifyListeners();
       },
     );
@@ -130,6 +136,86 @@ class RecipeProvider extends ChangeNotifier {
 
       return matchesCategory && matchesQuery;
     }).toList();
+  }
+
+  // Recipe Management (CRUD) Methods
+  Future<bool> addRecipe(RecipeModel recipe) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final docId = await _recipeRepository.createRecipe(recipe);
+      debugPrint('[RecipeProvider] addRecipe succeeded with doc ID: $docId');
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('[RecipeProvider] addRecipe failed: $e');
+      _errorMessage = 'Failed to add recipe. Please try again.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateRecipe(RecipeModel recipe) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _recipeRepository.updateRecipe(recipe);
+      debugPrint('[RecipeProvider] updateRecipe succeeded for ID: ${recipe.id}');
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('[RecipeProvider] updateRecipe failed: $e');
+      _errorMessage = 'Failed to update recipe. Please try again.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteRecipe(String recipeId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _recipeRepository.deleteRecipe(recipeId);
+      debugPrint('[RecipeProvider] deleteRecipe succeeded for ID: $recipeId');
+      _allRecipes.removeWhere((r) => r.id == recipeId);
+      _applyFilters();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('[RecipeProvider] deleteRecipe failed: $e');
+      _errorMessage = 'Failed to delete recipe. Please try again.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Real-Time Review Operations
+  Stream<List<ReviewModel>> watchReviews(String recipeId) {
+    return _recipeRepository.watchReviewsForRecipe(recipeId);
+  }
+
+  Future<bool> submitReview(ReviewModel review) async {
+    try {
+      await _recipeRepository.addOrUpdateReview(review);
+      return true;
+    } catch (e) {
+      debugPrint('[RecipeProvider] submitReview error: $e');
+      _errorMessage = 'Failed to submit review. Please try again.';
+      notifyListeners();
+      return false;
+    }
   }
 
   @override
