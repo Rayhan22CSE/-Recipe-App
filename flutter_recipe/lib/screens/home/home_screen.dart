@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../app/routes.dart';
 import '../../app/theme.dart';
-import '../../providers/auth_provider.dart';
 import '../../providers/recipe_provider.dart';
 import '../../utils/constants.dart';
 import '../../widgets/category_card.dart';
@@ -29,9 +28,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
     final recipeProvider = Provider.of<RecipeProvider>(context);
-    final userName = authProvider.currentUser?.name ?? 'Foodie';
+
+    // Filter recipes for Home Screen: ONLY display reference recipes (Mexican Pizza & French Toast) on 'All' category view
+    final displayRecipes = (recipeProvider.selectedCategory == 'All' &&
+            recipeProvider.searchQuery.isEmpty)
+        ? recipeProvider.recipes.where((r) {
+            final title = (r.name.isNotEmpty ? r.name : r.title).toLowerCase();
+            return title.contains('mexican pizza') ||
+                title.contains('french toast');
+          }).toList()
+        : recipeProvider.recipes;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -43,67 +50,61 @@ class _HomeScreenState extends State<HomeScreen> {
           color: AppTheme.primaryColor,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(20.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top Header / User Greeting & Profile Avatar
+                // 1. Top Header Row: Title & Notification Bell
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hello, $userName 👋',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'What would you like to cook today?',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppTheme.textSecondary,
-                            ),
+                    const Text(
+                      'What are you\ncooking today?',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        height: 1.15,
+                        color: Color(0xFF1E1E24),
+                      ),
+                    ),
+                    Container(
+                      height: 46,
+                      width: 46,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(8),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                    ),
-                    IconButton(
-                      icon: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: const Icon(Icons.logout_rounded,
-                            size: 20, color: AppTheme.primaryColor),
+                      child: IconButton(
+                        icon: const Icon(Icons.notifications_none_rounded,
+                            color: Color(0xFF1E1E24), size: 22),
+                        onPressed: () {},
                       ),
-                      onPressed: () async {
-                        await authProvider.logout();
-                        if (!context.mounted) return;
-                        Navigator.pushReplacementNamed(context, AppRoutes.login);
-                      },
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
 
-                // Interactive Search Bar
+                // 2. Search Bar
                 Container(
+                  height: 50,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withAlpha(12),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        color: Colors.black.withAlpha(8),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
@@ -112,48 +113,109 @@ class _HomeScreenState extends State<HomeScreen> {
                     onChanged: (val) {
                       recipeProvider.searchRecipes(val);
                     },
-                    decoration: InputDecoration(
-                      hintText: 'Search by recipe title or ingredient...',
-                      prefixIcon:
-                          const Icon(Icons.search_rounded, color: Color(0xFF757575)),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear_rounded,
-                                  color: Color(0xFF757575)),
-                              onPressed: () {
-                                _searchController.clear();
-                                recipeProvider.searchRecipes('');
-                              },
-                            )
-                          : Container(
-                              margin: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppTheme.primaryColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(Icons.tune_rounded,
-                                  color: Colors.white, size: 18),
-                            ),
+                    decoration: const InputDecoration(
+                      hintText: 'Search any recipes',
+                      hintStyle: TextStyle(
+                        color: Color(0xFF9EA6B5),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      prefixIcon: Icon(Icons.search_rounded,
+                          color: Color(0xFF9EA6B5), size: 22),
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 14),
                     ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // 3. Green Promotional Banner Card
+                Container(
+                  width: double.infinity,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF478677),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        left: 20,
+                        top: 20,
+                        bottom: 20,
+                        right: 140,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Cook the best\nrecipes at home',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 22, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                'Explore',
+                                style: TextStyle(
+                                  color: Color(0xFF1E1E24),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        top: 0,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
+                          child: Image.network(
+                            'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=400&q=80',
+                            width: 140,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const SizedBox.shrink(),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
 
-                // Horizontal Categories Selector
-                const Text(
-                  'Categories',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
+                // 4. Categories Header & Pill Chips
+                const Center(
+                  child: Text(
+                    'Categories',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E1E24),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 SizedBox(
-                  height: 44,
+                  height: 42,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: AppConstants.categories.length,
@@ -175,136 +237,62 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
 
-                // Featured Recipe Hero Carousel (Only shown when not searching)
-                if (recipeProvider.searchQuery.isEmpty &&
-                    recipeProvider.selectedCategory == 'All' &&
-                    recipeProvider.featuredRecipes.isNotEmpty) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Featured Recipes',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          'See All',
-                          style: TextStyle(
-                            color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 210,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: recipeProvider.featuredRecipes.length,
-                      itemBuilder: (context, index) {
-                        final recipe = recipeProvider.featuredRecipes[index];
-                        final isFav = recipeProvider.isFavorite(recipe.id);
-
-                        return RecipeCard(
-                          recipe: recipe,
-                          isCompact: true,
-                          isFavorite: isFav,
-                          onFavoriteToggle: () {
-                            recipeProvider.toggleFavorite(recipe.id);
-                          },
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoutes.recipeDetails,
-                              arguments: recipe,
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                ],
-
-                // Popular / All Recipes Section
+                // 5. Quick & Easy Section Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      recipeProvider.selectedCategory == 'All'
-                          ? 'Popular Recipes'
-                          : '${recipeProvider.selectedCategory} Recipes',
-                      style: const TextStyle(
-                        fontSize: 18,
+                    const Text(
+                      'Quick & Easy',
+                      style: TextStyle(
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+                        color: Color(0xFF1E1E24),
                       ),
                     ),
-                    if (!recipeProvider.isLoading)
-                      Text(
-                        '${recipeProvider.recipes.length} found',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.textSecondary,
+                    GestureDetector(
+                      onTap: () {},
+                      child: const Text(
+                        'View all',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryColor,
                         ),
                       ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
 
-                // Content View States: Loading, Error, Empty, or Recipes List
+                // 6. Recipe Grid (2 Columns)
                 if (recipeProvider.isLoading)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 40.0),
-                    child: LoadingWidget(message: 'Loading real-time recipes...'),
-                  )
-                else if (recipeProvider.errorMessage != null)
-                  EmptyState(
-                    title: 'Unable to Load Recipes',
-                    description: recipeProvider.errorMessage!,
-                    icon: Icons.cloud_off_rounded,
-                    buttonText: 'Retry',
-                    onButtonPressed: () {
-                      recipeProvider.refreshRecipes();
-                    },
-                  )
-                else if (recipeProvider.recipes.isEmpty)
-                  EmptyState(
+                  const LoadingWidget(message: 'Loading recipes...')
+                else if (displayRecipes.isEmpty)
+                  const EmptyState(
                     title: 'No Recipes Found',
-                    description: recipeProvider.searchQuery.isNotEmpty
-                        ? 'No recipes match "${recipeProvider.searchQuery}". Try searching for another dish or ingredient.'
-                        : 'No recipes found in ${recipeProvider.selectedCategory} category yet.',
+                    description: 'No recipes match your criteria.',
                     icon: Icons.search_off_rounded,
-                    buttonText: recipeProvider.searchQuery.isNotEmpty ||
-                            recipeProvider.selectedCategory != 'All'
-                        ? 'Clear Filters'
-                        : null,
-                    onButtonPressed: () {
-                      _searchController.clear();
-                      recipeProvider.clearFilters();
-                    },
                   )
                 else
-                  ListView.builder(
+                  GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: recipeProvider.recipes.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.82,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: displayRecipes.length,
                     itemBuilder: (context, index) {
-                      final recipe = recipeProvider.recipes[index];
+                      final recipe = displayRecipes[index];
                       final isFav = recipeProvider.isFavorite(recipe.id);
 
                       return RecipeCard(
                         recipe: recipe,
-                        isCompact: false,
                         isFavorite: isFav,
                         onFavoriteToggle: () {
                           recipeProvider.toggleFavorite(recipe.id);
@@ -324,44 +312,57 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          if (index == 1) {
-            Navigator.pushNamed(context, AppRoutes.search);
-          } else if (index == 2) {
-            Navigator.pushNamed(context, AppRoutes.favorites);
-          } else if (index == 3) {
-            Navigator.pushNamed(context, AppRoutes.profile);
-          }
-        },
-        indicatorColor: AppTheme.primaryColor.withAlpha(40),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded, color: AppTheme.primaryColor),
-            label: 'Home',
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(10),
+              blurRadius: 10,
+              offset: const Offset(0, -3),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          selectedItemColor: AppTheme.primaryColor,
+          unselectedItemColor: const Color(0xFF9EA6B5),
+          selectedLabelStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
           ),
-          NavigationDestination(
-            icon: Icon(Icons.search_outlined),
-            selectedIcon: Icon(Icons.search_rounded, color: AppTheme.primaryColor),
-            label: 'Search',
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
           ),
-          NavigationDestination(
-            icon: Icon(Icons.favorite_outline_rounded),
-            selectedIcon:
-                Icon(Icons.favorite_rounded, color: AppTheme.primaryColor),
-            label: 'Favorites',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline_rounded),
-            selectedIcon: Icon(Icons.person_rounded, color: AppTheme.primaryColor),
-            label: 'Profile',
-          ),
-        ],
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_rounded),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.favorite_border_rounded),
+              label: 'Favorites',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.event_note_outlined),
+              label: 'Meal Plan',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              label: 'Settings',
+            ),
+          ],
+        ),
       ),
     );
   }

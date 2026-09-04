@@ -5,75 +5,117 @@ class AppConstants {
   static const String appName = 'Recipe Haven';
   static const String appTagline = 'Discover & Cook Amazing Recipes';
 
-  // Categories
+  // Categories matching reference design
   static const List<Map<String, String>> categories = [
     {'name': 'All', 'icon': 'restaurant'},
-    {'name': 'Breakfast', 'icon': 'free_breakfast'},
-    {'name': 'Lunch', 'icon': 'lunch_dining'},
     {'name': 'Dinner', 'icon': 'dinner_dining'},
-    {'name': 'Dessert', 'icon': 'icecream'},
-    {'name': 'Quick & Easy', 'icon': 'timer'},
+    {'name': 'Lunch', 'icon': 'lunch_dining'},
+    {'name': 'Breakfast', 'icon': 'free_breakfast'},
   ];
 
-  // Isolated Mock Recipes for test/fallback reference
+  // Reference recipes dataset matching reference screenshots
   static final List<RecipeModel> testFallbackRecipes = [
     RecipeModel(
-      id: 'mock_1',
-      name: 'Creamy Garlic Butter Pasta',
+      id: 'ref_1',
+      name: 'Mexican Pizza',
       description:
-          'A quick, silky pasta dish infused with rich garlic butter, fresh parsley, and parmesan cheese.',
+          'Crispy tortilla pizza topped with seasoned beans, melted cheese, black olives, green onions, sour cream, and fresh diced tomatoes.',
       imageUrl:
-          'https://images.unsplash.com/photo-1621996346565-e3d5d6281313?w=600&q=80',
-      category: 'Lunch',
-      calories: 420,
-      preparationTime: 20,
+          'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&q=80',
+      category: 'Dinner',
+      calories: 140,
+      preparationTime: 25,
       servings: 2,
-      rating: 4.8,
-      reviewCount: 12,
+      rating: 4.9,
+      reviewCount: 38,
       ingredients: [
-        IngredientModel(name: 'Fettuccine Pasta', amount: 250, unit: 'g'),
-        IngredientModel(name: 'Minced Garlic', amount: 4, unit: 'cloves'),
-        IngredientModel(name: 'Unsalted Butter', amount: 50, unit: 'g'),
-        IngredientModel(name: 'Heavy Cream', amount: 0.5, unit: 'cup'),
-        IngredientModel(name: 'Grated Parmesan', amount: 0.5, unit: 'cup'),
+        IngredientModel(name: 'Tortilla Shells', amount: 2, unit: 'pcs'),
+        IngredientModel(name: 'Refried Beans', amount: 150, unit: 'gm'),
+        IngredientModel(name: 'Shredded Cheese', amount: 100, unit: 'gm'),
+        IngredientModel(name: 'Sliced Olives', amount: 30, unit: 'gm'),
+        IngredientModel(name: 'Sour Cream', amount: 2, unit: 'tbsp'),
       ],
       instructions: [
-        'Boil pasta in salted water until al dente.',
-        'Melt butter in a skillet and sauté minced garlic until fragrant.',
-        'Pour in heavy cream and simmer for 2 minutes.',
-        'Stir in grated Parmesan until sauce is smooth.',
-        'Toss in cooked pasta, garnish with fresh parsley, and serve warm.'
+        'Crisp tortilla shells in oven at 200°C for 5 minutes.',
+        'Spread refried beans and shredded cheese over tortillas.',
+        'Bake until cheese is melted and bubbling.',
+        'Top with diced tomatoes, black olives, green onions, and sour cream.'
       ],
-      createdBy: 'Chef Alex',
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
+      createdBy: 'Chef Carlos',
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
     ),
     RecipeModel(
-      id: 'mock_2',
-      name: 'Avocado Toast with Poached Egg',
+      id: 'ref_2',
+      name: 'French Toast',
       description:
-          'Crispy sourdough bread topped with creamy mashed avocado, chili flakes, and a golden poached egg.',
+          'Golden brioche slices dipped in cinnamon egg custard, toasted to perfection and topped with fresh strawberries and blueberries.',
       imageUrl:
-          'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80',
+          'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=600&q=80',
       category: 'Breakfast',
-      calories: 310,
+      calories: 110,
       preparationTime: 15,
       servings: 1,
-      rating: 4.7,
-      reviewCount: 19,
+      rating: 4.8,
+      reviewCount: 29,
       ingredients: [
-        IngredientModel(name: 'Sourdough Bread', amount: 2, unit: 'slices'),
-        IngredientModel(name: 'Ripe Avocado', amount: 1, unit: 'pc'),
+        IngredientModel(name: 'Brioche Bread', amount: 2, unit: 'slices'),
         IngredientModel(name: 'Fresh Eggs', amount: 2, unit: 'pcs'),
-        IngredientModel(name: 'Lemon Juice', amount: 1, unit: 'tbsp'),
+        IngredientModel(name: 'Whole Milk', amount: 50, unit: 'gm'),
+        IngredientModel(name: 'Fresh Berries', amount: 100, unit: 'gm'),
       ],
       instructions: [
-        'Toast the sourdough bread slices until golden crisp.',
-        'Mash avocado with lemon juice, salt, and pepper in a small bowl.',
-        'Poach eggs in simmering water with a splash of vinegar for 3 minutes.',
-        'Spread mashed avocado onto toast, top with poached egg and red pepper flakes.'
+        'Whisk eggs, milk, cinnamon, and vanilla extract in a bowl.',
+        'Dip bread slices into mixture until fully coated.',
+        'Cook in a buttered skillet over medium heat until golden brown on both sides.',
+        'Garnish with fresh strawberries and blueberries before serving.'
       ],
-      createdBy: 'Maria Chef',
-      createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      createdBy: 'Baker Sarah',
+      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+    ),
+    RecipeModel(
+      id: 'ref_3',
+      name: 'Spicy Ramen Noodles',
+      description:
+          'Rich savory ramen broth with chewy noodles, soft-boiled eggs, tender beef, scallions, and chili oil.',
+      imageUrl:
+          'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80',
+      category: 'Lunch',
+      calories: 120,
+      preparationTime: 15,
+      servings: 1,
+      rating: 5.0,
+      reviewCount: 23,
+      ingredients: [
+        IngredientModel(
+          name: 'Noodles',
+          amount: 200,
+          unit: 'gm',
+          imageUrl:
+              'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=200&q=80',
+        ),
+        IngredientModel(
+          name: 'Egg',
+          amount: 180,
+          unit: 'gm',
+          imageUrl:
+              'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=200&q=80',
+        ),
+        IngredientModel(
+          name: 'Mead & Vegetables',
+          amount: 150,
+          unit: 'gm',
+          imageUrl:
+              'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200&q=80',
+        ),
+      ],
+      instructions: [
+        'Boil ramen noodles in savory broth for 3 minutes.',
+        'Soft boil eggs for 6 minutes and halve.',
+        'Arrange noodles, soft-boiled eggs, beef, and vegetables in bowl.',
+        'Drizzle with chili oil and sprinkle fresh scallions.'
+      ],
+      createdBy: 'Chef Kenji',
+      createdAt: DateTime.now().subtract(const Duration(hours: 4)),
     ),
   ];
 }

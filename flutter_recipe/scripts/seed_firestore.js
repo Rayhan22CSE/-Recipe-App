@@ -3,12 +3,7 @@
  * Target Project: recipe-app-39d4f
  * 
  * Usage:
- *   1. Supply service account key:
- *      Save your Firebase private key as `scripts/service-account.json`
- *      OR set GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
- * 
- *   2. Run command:
- *      node scripts/seed_firestore.js
+ *   node scripts/seed_firestore.js [--force]
  */
 
 const fs = require('fs');
@@ -19,6 +14,7 @@ const { getFirestore, Timestamp } = require('firebase-admin/firestore');
 const PROJECT_ID = 'recipe-app-39d4f';
 const DATASET_PATH = path.join(__dirname, '..', 'assets', 'sample_recipes_dataset.json');
 const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || path.join(__dirname, 'service-account.json');
+const isForceMode = process.argv.includes('--force');
 
 function initFirestore() {
   if (!getApps().length) {
@@ -42,7 +38,7 @@ function initFirestore() {
 
 async function seedFirestore() {
   console.log(`\n==================================================`);
-  console.log(`🔥 Starting One-Time Firestore Recipe Seeder`);
+  console.log(`🔥 Starting Firestore Recipe Seeder`);
   console.log(`🎯 Target Project ID: ${PROJECT_ID}`);
   console.log(`==================================================\n`);
 
@@ -51,13 +47,21 @@ async function seedFirestore() {
     const recipesRef = db.collection('recipes');
 
     // Step 1: Check existing documents in recipes collection
-    console.log('🔍 Checking if recipes collection already contains documents...');
-    const snapshot = await recipesRef.limit(1).get();
+    console.log('🔍 Checking existing recipes collection...');
+    const snapshot = await recipesRef.get();
 
-    if (!snapshot.empty) {
-      console.log(`\n⚠️  Recipes already exist in Firestore collection (${snapshot.size} document found).`);
-      console.log(`🛑 Stopping seeder to prevent overwriting existing data.`);
+    if (!snapshot.empty && !isForceMode) {
+      console.log(`\n⚠️  Recipes already exist in Firestore collection (${snapshot.size} documents found).`);
+      console.log(`🛑 Stopping seeder to prevent overwriting existing data. Use --force to replace.`);
       return;
+    }
+
+    if (!snapshot.empty && isForceMode) {
+      console.log(`\n🗑️  --force flag specified. Cleaning existing ${snapshot.size} recipes...`);
+      const deleteBatch = db.batch();
+      snapshot.docs.forEach((doc) => deleteBatch.delete(doc.ref));
+      await deleteBatch.commit();
+      console.log(`✅ Cleaned old recipes.`);
     }
 
     // Step 2: Read dataset JSON file
@@ -113,7 +117,7 @@ async function seedFirestore() {
       console.log(`\n💡 How to execute the seeder:`);
       console.log(`   1. Go to Firebase Console -> Project Settings -> Service Accounts.`);
       console.log(`   2. Click "Generate new private key" and save as "scripts/service-account.json".`);
-      console.log(`   3. Run: node scripts/seed_firestore.js\n`);
+      console.log(`   3. Run: node scripts/seed_firestore.js [--force]\n`);
     }
     process.exit(1);
   }
