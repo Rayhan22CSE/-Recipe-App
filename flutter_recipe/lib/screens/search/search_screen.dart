@@ -162,11 +162,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: MediaQuery.of(context).size.width >= 1100
-                          ? 4
-                          : (MediaQuery.of(context).size.width >= 650 ? 3 : 2),
-                      childAspectRatio: 1.08,
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 165,
+                      mainAxisExtent: 175,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
                     ),
@@ -175,19 +173,22 @@ class _SearchScreenState extends State<SearchScreen> {
                       final recipe = displayRecipes[index];
                       final isFav = recipeProvider.isFavorite(recipe.id);
 
-                      return RecipeCard(
-                        recipe: recipe,
-                        isFavorite: isFav,
-                        onFavoriteToggle: () {
-                          recipeProvider.toggleFavorite(recipe.id);
-                        },
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            AppRoutes.recipeDetails,
-                            arguments: recipe,
-                          );
-                        },
+                      return Center(
+                        child: RecipeCard(
+                          recipe: recipe,
+                          width: 155,
+                          isFavorite: isFav,
+                          onFavoriteToggle: () {
+                            recipeProvider.toggleFavorite(recipe.id);
+                          },
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.recipeDetails,
+                              arguments: recipe,
+                            );
+                          },
+                        ),
                       );
                     },
                   ),

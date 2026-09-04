@@ -15,7 +15,7 @@ class RecipeCard extends StatelessWidget {
     required this.onTap,
     required this.isFavorite,
     required this.onFavoriteToggle,
-    this.width,
+    this.width = 155.0,
   });
 
   @override

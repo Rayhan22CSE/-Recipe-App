@@ -29,11 +29,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget build(BuildContext context) {
     final recipeProvider = Provider.of<RecipeProvider>(context);
     final displayRecipes = recipeProvider.recipes;
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    final crossAxisCount = screenWidth >= 1100
-        ? 4
-        : (screenWidth >= 650 ? 3 : 2);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -186,9 +181,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      childAspectRatio: 1.08,
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 165,
+                      mainAxisExtent: 175,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
                     ),
@@ -197,19 +192,22 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       final recipe = displayRecipes[index];
                       final isFav = recipeProvider.isFavorite(recipe.id);
 
-                      return RecipeCard(
-                        recipe: recipe,
-                        isFavorite: isFav,
-                        onFavoriteToggle: () {
-                          recipeProvider.toggleFavorite(recipe.id);
-                        },
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            AppRoutes.recipeDetails,
-                            arguments: recipe,
-                          );
-                        },
+                      return Center(
+                        child: RecipeCard(
+                          recipe: recipe,
+                          width: 155,
+                          isFavorite: isFav,
+                          onFavoriteToggle: () {
+                            recipeProvider.toggleFavorite(recipe.id);
+                          },
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.recipeDetails,
+                              arguments: recipe,
+                            );
+                          },
+                        ),
                       );
                     },
                   ),
