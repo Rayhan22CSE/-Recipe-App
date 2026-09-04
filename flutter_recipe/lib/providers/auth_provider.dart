@@ -23,6 +23,7 @@ class AuthProvider extends ChangeNotifier {
   void _init() {
     _authRepository.authStateChanges.listen((User? firebaseUser) {
       if (firebaseUser != null) {
+        debugPrint('[AuthProvider] authStateChanges emitted non-null user: ${firebaseUser.email} (uid: ${firebaseUser.uid})');
         _currentUser = UserModel(
           id: firebaseUser.uid,
           name: firebaseUser.displayName ?? firebaseUser.email?.split('@').first ?? 'User',
@@ -31,6 +32,7 @@ class AuthProvider extends ChangeNotifier {
           createdAt: DateTime.now(),
         );
       } else {
+        debugPrint('[AuthProvider] authStateChanges emitted null user');
         _currentUser = null;
       }
       notifyListeners();
@@ -56,16 +58,20 @@ class AuthProvider extends ChangeNotifier {
     _setLoading(true);
     _setError(null);
     try {
+      debugPrint('[AuthProvider] Starting login for email: $email');
       final user = await _authRepository.login(email, password);
       _currentUser = user;
       _setLoading(false);
+      debugPrint('[AuthProvider] Login completed SUCCESSFUL for user: ${user?.email}');
       return true;
-    } on FirebaseAuthException catch (e) {
-      _setError(_getReadableAuthError(e.code));
+    } on FirebaseException catch (e) {
+      debugPrint('[AuthProvider] Login FirebaseException: [${e.plugin}/${e.code}] ${e.message}');
+      _setError(_getReadableAuthError(e.code, e.message));
       _setLoading(false);
       return false;
-    } catch (e) {
-      _setError('An unexpected error occurred. Please try again.');
+    } catch (e, stack) {
+      debugPrint('[AuthProvider] Login unexpected error: $e\n$stack');
+      _setError('Login error: ${e.toString()}');
       _setLoading(false);
       return false;
     }
@@ -75,18 +81,20 @@ class AuthProvider extends ChangeNotifier {
     _setLoading(true);
     _setError(null);
     try {
+      debugPrint('[AuthProvider] Starting registration for email: $email');
       final user = await _authRepository.register(name, email, password);
       _currentUser = user;
       _setLoading(false);
+      debugPrint('[AuthProvider] Registration completed SUCCESSFUL for user: ${user?.email}');
       return true;
     } on FirebaseException catch (e) {
-      debugPrint('Registration FirebaseException: [${e.plugin}/${e.code}] ${e.message}');
+      debugPrint('[AuthProvider] Registration FirebaseException: [${e.plugin}/${e.code}] ${e.message}');
       _setError(_getReadableAuthError(e.code, e.message));
       _setLoading(false);
       return false;
-    } catch (e) {
-      debugPrint('Registration unexpected error: $e');
-      _setError('An unexpected error occurred during registration.');
+    } catch (e, stack) {
+      debugPrint('[AuthProvider] Registration unexpected error: $e\n$stack');
+      _setError('Registration failed: ${e.toString()}');
       _setLoading(false);
       return false;
     }
@@ -94,7 +102,11 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     _setLoading(true);
-    await _authRepository.logout();
+    try {
+      await _authRepository.logout();
+    } catch (e) {
+      debugPrint('[AuthProvider] Logout error: $e');
+    }
     _currentUser = null;
     _setLoading(false);
   }
@@ -106,11 +118,13 @@ class AuthProvider extends ChangeNotifier {
       await _authRepository.resetPassword(email);
       _setLoading(false);
       return true;
-    } on FirebaseAuthException catch (e) {
-      _setError(_getReadableAuthError(e.code));
+    } on FirebaseException catch (e) {
+      debugPrint('[AuthProvider] ResetPassword FirebaseException: [${e.plugin}/${e.code}] ${e.message}');
+      _setError(_getReadableAuthError(e.code, e.message));
       _setLoading(false);
       return false;
     } catch (e) {
+      debugPrint('[AuthProvider] ResetPassword error: $e');
       _setError('Failed to send password reset email.');
       _setLoading(false);
       return false;

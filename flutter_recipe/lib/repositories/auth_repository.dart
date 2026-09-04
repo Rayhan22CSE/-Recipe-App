@@ -18,14 +18,22 @@ class AuthRepository {
   Stream<User?> get authStateChanges => _authService.authStateChanges;
 
   Future<UserModel?> login(String email, String password) async {
+    debugPrint('[AuthRepository] Starting login for: $email');
     final credential = await _authService.login(email: email, password: password);
+
     if (credential.user != null) {
       final uid = credential.user!.uid;
-      UserModel? profile = await _firestoreService.getUserProfile(uid);
+      UserModel? profile;
 
-      // Self-healing: If Firestore profile document is missing (e.g. from prior partial registration), create it now
+      try {
+        profile = await _firestoreService.getUserProfile(uid);
+      } catch (e) {
+        debugPrint('[AuthRepository] Firestore profile fetch failed for $uid: $e');
+      }
+
+      // Self-healing: If Firestore profile document is missing or fetch failed, construct fallback and save if possible
       if (profile == null) {
-        debugPrint('User profile missing in Firestore for $uid. Auto-creating profile...');
+        debugPrint('[AuthRepository] User profile missing or unreadable in Firestore for $uid. Auto-creating profile...');
         profile = UserModel(
           id: uid,
           name: credential.user!.displayName ?? email.split('@').first,
@@ -36,16 +44,18 @@ class AuthRepository {
         try {
           await _firestoreService.createUserProfile(profile);
         } catch (e) {
-          debugPrint('Warning: Could not auto-create missing user profile on login: $e');
+          debugPrint('[AuthRepository] Warning: Could not auto-create missing user profile on login: $e');
         }
       }
 
+      debugPrint('[AuthRepository] Login returning UserModel for uid: ${profile.id}');
       return profile;
     }
     return null;
   }
 
   Future<UserModel?> register(String name, String email, String password) async {
+    debugPrint('[AuthRepository] Starting registration for: $email ($name)');
     final credential = await _authService.register(
       email: email,
       password: password,
@@ -65,7 +75,7 @@ class AuthRepository {
         await _firestoreService.createUserProfile(user);
         return user;
       } catch (e) {
-        debugPrint('Error creating Firestore user profile during registration: $e');
+        debugPrint('[AuthRepository] Error creating Firestore user profile during registration: $e');
         // Clean up Auth state on profile creation failure to prevent partial state
         await _authService.logout();
         rethrow;

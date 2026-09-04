@@ -32,6 +32,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    debugPrint('[LoginScreen] Sign In button pressed for email: ${_emailController.text.trim()}');
+
     final success = await authProvider.login(
       _emailController.text,
       _passwordController.text,
@@ -40,11 +42,14 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
+      debugPrint('[LoginScreen] Login success: true -> Navigating to AppRoutes.home');
       Navigator.pushReplacementNamed(context, AppRoutes.home);
-    } else if (authProvider.errorMessage != null) {
+    } else {
+      final err = authProvider.errorMessage ?? 'Login failed. Please check credentials.';
+      debugPrint('[LoginScreen] Login success: false -> Displaying SnackBar: $err');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.errorMessage!),
+          content: Text(err),
           backgroundColor: AppTheme.errorColor,
         ),
       );

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 import '../models/recipe_model.dart';
@@ -7,15 +8,36 @@ class FirestoreService {
 
   // User document operations
   Future<void> createUserProfile(UserModel user) async {
-    await _firestore.collection('users').doc(user.id).set(user.toMap());
+    try {
+      debugPrint('[FirestoreService] Creating user profile for uid: ${user.id}');
+      await _firestore.collection('users').doc(user.id).set(user.toMap());
+      debugPrint('[FirestoreService] User profile created successfully for uid: ${user.id}');
+    } on FirebaseException catch (e) {
+      debugPrint('[FirestoreService] createUserProfile FirebaseException: [${e.plugin}/${e.code}] ${e.message}');
+      rethrow;
+    } catch (e) {
+      debugPrint('[FirestoreService] createUserProfile unexpected error: $e');
+      rethrow;
+    }
   }
 
   Future<UserModel?> getUserProfile(String uid) async {
-    final doc = await _firestore.collection('users').doc(uid).get();
-    if (doc.exists && doc.data() != null) {
-      return UserModel.fromMap(doc.data()!, doc.id);
+    try {
+      debugPrint('[FirestoreService] Reading user profile for uid: $uid');
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists && doc.data() != null) {
+        debugPrint('[FirestoreService] User profile doc exists for uid: $uid');
+        return UserModel.fromMap(doc.data()!, doc.id);
+      }
+      debugPrint('[FirestoreService] User profile doc does NOT exist for uid: $uid');
+      return null;
+    } on FirebaseException catch (e) {
+      debugPrint('[FirestoreService] getUserProfile FirebaseException: [${e.plugin}/${e.code}] ${e.message}');
+      rethrow;
+    } catch (e) {
+      debugPrint('[FirestoreService] getUserProfile unexpected error: $e');
+      rethrow;
     }
-    return null;
   }
 
   // Real-time Recipe Stream
