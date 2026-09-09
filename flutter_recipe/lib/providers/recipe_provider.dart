@@ -20,7 +20,7 @@ class RecipeProvider extends ChangeNotifier {
   String _searchQuery = '';
 
   RecipeProvider({RecipeRepository? recipeRepository})
-      : _recipeRepository = recipeRepository ?? RecipeRepository() {
+    : _recipeRepository = recipeRepository ?? RecipeRepository() {
     _init();
   }
 
@@ -141,11 +141,13 @@ class RecipeProvider extends ChangeNotifier {
 
   void _applyFilters() {
     _filteredRecipes = _allRecipes.where((recipe) {
-      final matchesCategory = _selectedCategory == 'All' ||
+      final matchesCategory =
+          _selectedCategory == 'All' ||
           recipe.category.toLowerCase() == _selectedCategory.toLowerCase();
 
       final queryLower = _searchQuery.trim().toLowerCase();
-      final matchesTitle = recipe.title.toLowerCase().contains(queryLower) ||
+      final matchesTitle =
+          recipe.title.toLowerCase().contains(queryLower) ||
           recipe.name.toLowerCase().contains(queryLower) ||
           recipe.description.toLowerCase().contains(queryLower);
 
@@ -153,7 +155,8 @@ class RecipeProvider extends ChangeNotifier {
         (ing) => ing.name.toLowerCase().contains(queryLower),
       );
 
-      final matchesQuery = queryLower.isEmpty || matchesTitle || matchesIngredient;
+      final matchesQuery =
+          queryLower.isEmpty || matchesTitle || matchesIngredient;
 
       return matchesCategory && matchesQuery;
     }).toList();
@@ -187,7 +190,9 @@ class RecipeProvider extends ChangeNotifier {
 
     try {
       await _recipeRepository.updateRecipe(recipe);
-      debugPrint('[RecipeProvider] updateRecipe succeeded for ID: ${recipe.id}');
+      debugPrint(
+        '[RecipeProvider] updateRecipe succeeded for ID: ${recipe.id}',
+      );
       _isLoading = false;
       notifyListeners();
       return true;
